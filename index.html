@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viatge Ètic — Viatja amb consciència</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F5F0; --white: #FFFFFF; --text: #1A1A18; --muted: #6B6960;
+      --border: #E0DDD5; --green: #2D6A4F; --gl: #D8F3DC;
+      --amber: #92400E; --al: #FEF3C7; --red: #991B1B; --rl: #FEE2E2;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; }
+    .nav-logo { font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; padding: 1rem 0; margin-right: 2rem; cursor: pointer; color: var(--text); flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+    .nav-link { padding: 1rem 0.85rem; font-size: 0.82rem; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.on { color: var(--green); border-bottom-color: var(--green); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+    .lang-btn { padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .lang-btn.on { background: var(--text); color: white; border-color: var(--text); }
+    .nav-cta { padding: 0.45rem 1rem; background: var(--text); color: var(--white); border: none; border-radius: 8px; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+    .page { display: none; }
+    .page.on { display: block; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .container-sm { max-width: 700px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .hero { background: var(--white); border-bottom: 1px solid var(--border); padding: 4rem 1.5rem 3rem; text-align: center; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem,5vw,3.5rem); font-weight: 400; margin-bottom: 1rem; line-height: 1.2; }
+    .hero p { font-size: 1.05rem; color: var(--muted); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+    .search-wrap { position: relative; max-width: 500px; margin: 0 auto; }
+    .hero-search { display: flex; gap: 0.5rem; }
+    .hero-search input { flex: 1; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); outline: none; }
+    .hero-search input:focus { border-color: var(--green); }
+    .hero-search button { padding: 0.85rem 1.25rem; background: var(--green); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+    .autocomplete-list { position: absolute; top: calc(100% + 4px); left: 0; right: 60px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: none; }
+    .autocomplete-item { padding: 0.65rem 1rem; font-size: 0.9rem; cursor: pointer; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+    .autocomplete-item:hover, .autocomplete-item.highlighted { background: var(--bg); }
+    .autocomplete-flag { font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease; opacity: 0; animation: cardIn 0.4s ease forwards; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+    .card-img { width: 100%; height: 120px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 3rem; border-bottom: 1px solid var(--border); }
+    .card-content { padding: 0.85rem 1rem; }
+    .card-title { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.65rem; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    @keyframes cardIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+    .bg { background: var(--gl); color: var(--green); }
+    .ba { background: var(--al); color: var(--amber); }
+    .br { background: var(--rl); color: var(--red); }
+    .score { display: flex; align-items: center; gap: 6px; }
+    .score-bar { width: 55px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 3px; background: var(--green); }
+    .score-num { font-size: 0.72rem; font-weight: 500; color: var(--green); }
+    .section-title { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+    .section-title h2 { font-family: 'DM Serif Display', serif; font-size: 1.7rem; font-weight: 400; }
+    .section-title a { font-size: 0.8rem; color: var(--green); cursor: pointer; }
+    .btn { width: 100%; padding: 0.85rem; border-radius: 10px; border: none; background: var(--text); color: white; font-size: 0.9rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-bottom: 1.25rem; transition: background 0.2s; }
+    .btn-ghost:hover { background: var(--bg); }
+    .ai-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; background: var(--gl); color: var(--green); border: 1px solid #6EE7B7; border-radius: 8px; font-size: 0.78rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .ai-btn:hover { background: #b7e4c7; }
+    .steps { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .sdot { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--muted); background: var(--white); transition: all 0.3s; }
+    .sdot.cur { border-color: var(--green); background: var(--green); color: white; }
+    .sdot.done { border-color: var(--green); background: var(--gl); color: var(--green); }
+    .sline { flex: 1; height: 1px; background: var(--border); transition: background 0.3s; }
+    .sline.done { background: var(--green); }
+    .step-content { display: none; }
+    .step-content.on { display: block; }
+    .tool-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 2rem; }
+    .tool-head { padding: 1rem 1.25rem; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .tool-head h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; font-weight: 400; }
+    .tool-head p { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .tool-body { padding: 1.25rem; }
+    .input-row { display: flex; gap: 0.6rem; margin-bottom: 0.75rem; position: relative; }
+    .input-row input { flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); outline: none; }
+    .input-row input:focus { border-color: var(--green); }
+    .ac-wrap { flex: 1; position: relative; }
+    .ac-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: none; }
+    .ac-item { padding: 0.6rem 1rem; font-size: 0.88rem; cursor: pointer; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+    .ac-item:hover { background: var(--bg); }
+    .slabel { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: block; margin: 1.1rem 0 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    .slabel:first-child { margin-top: 0; }
+    .infobox { background: var(--bg); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.83rem; color: var(--text); line-height: 1.6; margin-bottom: 0.6rem; }
+    .conflict { border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.6rem; }
+    .ch { background: var(--rl); border: 1px solid #FCA5A5; }
+    .cm { background: var(--al); border: 1px solid #FCD34D; }
+    .cl { background: var(--gl); border: 1px solid #6EE7B7; }
+    .ct { font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; }
+    .cth{color:var(--red)}.ctm{color:var(--amber)}.ctl{color:var(--green)}
+    .cd { font-size: 0.78rem; line-height: 1.5; }
+    .cdh{color:#7F1D1D}.cdm{color:#78350F}.cdl{color:#1B4332}
+    .verdict { border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .vsi{background:var(--gl);border:1px solid #6EE7B7;}
+    .vam{background:var(--al);border:1px solid #FCD34D;}
+    .vno{background:var(--rl);border:1px solid #FCA5A5;}
+    .vtitle { font-family: 'DM Serif Display', serif; font-size: 1.15rem; font-weight: 400; margin-bottom: 4px; }
+    .vtsi{color:var(--green)}.vtam{color:var(--amber)}.vtno{color:var(--red)}
+    .vtext { font-size: 0.83rem; line-height: 1.6; }
+    .vtxsi{color:#1B4332}.vtxam{color:#78350F}.vtxno{color:#7F1D1D}
+    .t-item { border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.6rem; background: var(--white); }
+    .t-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .t-name { font-size: 0.9rem; font-weight: 500; }
+    .t-meta { display: flex; gap: 1rem; margin-bottom: 3px; }
+    .t-meta span { font-size: 0.75rem; color: var(--muted); }
+    .t-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+    .t-best { border-color: var(--green); background: var(--gl); }
+    .t-best .t-name,.t-best .t-desc { color: #1B4332; }
+    .rule { display: flex; gap: 0.6rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.83rem; line-height: 1.5; align-items: flex-start; }
+    .rule:last-child{border-bottom:none}
+    .rdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .tab-row { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab { padding: 0.4rem 0.85rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border); cursor: pointer; color: var(--muted); background: var(--white); transition: all 0.2s; }
+    .tab.on { background: var(--text); color: white; border-color: var(--text); }
+    .panel { display: none; }
+    .panel.on { display: block; }
+    .loading { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .da{display:inline-block;animation:blink 1.2s ease-in-out infinite}
+    .da:nth-child(2){animation-delay:.2s}.da:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+    .err { background: var(--rl); border: 1px solid #FCA5A5; border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.83rem; color: var(--red); margin-top: 0.75rem; }
+    .article-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: center; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; }
+    .article-card:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .article-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .article-title { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .article-sub { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+    .article-tag { font-size: 0.7rem; color: var(--green); font-weight: 500; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .filter { padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--border); cursor: pointer; background: var(--white); color: var(--muted); transition: all 0.2s; }
+    .filter.on { background: var(--green); color: white; border-color: var(--green); }
+    .nl-box { background: var(--text); color: white; border-radius: 16px; padding: 2.5rem 2rem; text-align: center; }
+    .nl-box h2 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; font-weight: 400; margin-bottom: 0.75rem; }
+    .nl-box p { font-size: 0.9rem; opacity: 0.75; margin-bottom: 1.5rem; line-height: 1.6; }
+    .nl-form { display: flex; gap: 0.5rem; max-width: 420px; margin: 0 auto; }
+    .nl-form input { flex: 1; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; outline: none; }
+    .nl-form input::placeholder { opacity: 0.5; color: white; }
+    .nl-form button { padding: 0.75rem 1.25rem; background: white; color: var(--text); border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+    .nl-ok { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; display: none; margin-top: 0.75rem; }
+    .rotating-badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; background: var(--gl); color: var(--green); border-radius: 20px; margin-left: 8px; animation: fadein 0.5s ease; }
+    @keyframes fadein{from{opacity:0}to{opacity:1}}
+    @media(max-width:600px){.hero-search,.nl-form,.input-row{flex-direction:column}}
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 2rem 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('home')">Viatge Ètic</div>
+    <div class="nav-links">
+      <div class="nav-link" onclick="showPage('buscador')" data-i18n="nav.buscador">Buscador ètic</div>
+      <div class="nav-link" onclick="showPage('destinacions')" data-i18n="nav.destinacions">Destinacions</div>
+      <div class="nav-link" onclick="showPage('allotjament')" data-i18n="nav.allotjament">Allotjament</div>
+      <div class="nav-link" onclick="showPage('menjar')" data-i18n="nav.menjar">Menjar</div>
+      <div class="nav-link" onclick="showPage('activitats')" data-i18n="nav.activitats">Activitats</div>
+      <div class="nav-link" onclick="showPage('guies')" data-i18n="nav.guies">Guies</div>
+    </div>
+    <div class="nav-right">
+      <button class="lang-btn on" onclick="setLang('ca')">CA</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="nav-cta" onclick="showPage('newsletter')" data-i18n="nav.newsletter">Newsletter</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page on" id="page-home">
+  <div class="hero">
+    <div style="display:inline-block;background:var(--gl);color:var(--green);font-size:0.75rem;font-weight:500;padding:0.35rem 1rem;border-radius:20px;margin-bottom:1.25rem;border:1px solid #6EE7B7">El turisme honest que no trobaràs a cap altra web</div>
+    <h1 data-i18n="home.title">Viatja bé.<br><em>Viatja amb consciència.</em></h1>
+    <p data-i18n="home.subtitle">El primer buscador de viatges que et diu la veritat: conflictes actius, impacte real i com viatjar sense perjudicar les comunitats locals.</p>
+    <div class="search-wrap">
+      <div class="hero-search">
+        <input type="text" id="hero-input" data-i18n-placeholder="search.placeholder" placeholder="Cap a on vols anar?" oninput="acHero(this.value)" onkeydown="if(event.key==='Enter')heroSearch()" autocomplete="off" />
+        <button onclick="heroSearch()" data-i18n="search.btn">Analitza →</button>
+      </div>
+      <div class="autocomplete-list" id="ac-hero"></div>
+    </div>
+    <div style="display:flex;gap:2rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
+      <div style="text-align:center">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--green)" id="counter-dest">0</div>
+        <div style="font-size:0.72rem;color:var(--muted)">destinacions analitzades</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--green)" id="counter-pobles">0</div>
+        <div style="font-size:0.72rem;color:var(--muted)">pobles sense estat reconeguts</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--green)" id="counter-guies">0</div>
+        <div style="font-size:0.72rem;color:var(--muted)">guies ètiques</div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="section-title">
+      <h2 data-i18n="home.featured">Destinacions destacades <span class="rotating-badge" id="dest-refresh-badge"></span></h2>
+      <a onclick="showPage('destinacions')" data-i18n="home.seeAll">Veure totes →</a>
+    </div>
+    <div class="grid" id="home-dest-grid">
+      <div class="loading">Carregant destinacions<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>
+    </div>
+    <div style="height:2rem"></div>
+    <div class="section-title">
+      <h2 data-i18n="home.guides">Guies recents</h2>
+      <a onclick="showPage('guies')" data-i18n="home.allGuides">Totes les guies →</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem">
+      <div class="article-card"><div class="article-icon">✈️</div><div><div class="article-tag" data-i18n="tag.mobility">Mobilitat</div><div class="article-title" data-i18n="article1.title">Com calcular la petjada de carboni del teu viatge (i compensar-la de veritat)</div><div class="article-sub" data-i18n="article1.sub">No totes les compensacions de CO₂ funcionen igual. Et expliquem quines organitzacions són realment efectives.</div></div></div>
+      <div class="article-card"><div class="article-icon">🏠</div><div><div class="article-tag" data-i18n="tag.accommodation">Allotjament</div><div class="article-title" data-i18n="article2.title">Per què Airbnb destrueix barris — i quines alternatives tens</div><div class="article-sub" data-i18n="article2.sub">Un anàlisi honest de l'impacte d'Airbnb als barris locals i plataformes alternatives.</div></div></div>
+      <div class="article-card"><div class="article-icon">🍽️</div><div><div class="article-tag" data-i18n="tag.food">Menjar</div><div class="article-title" data-i18n="article3.title">Com trobar on mengen els locals (i no els turistes)</div><div class="article-sub" data-i18n="article3.sub">Consells pràctics per sortir de la trampa turística i menjar autènticament en qualsevol destí.</div></div></div>
+    </div>
+    <div style="height:2.5rem"></div>
+    <div class="nl-box">
+      <h2 data-i18n="nl.title">Una destinació ètica cada setmana</h2>
+      <p data-i18n="nl.sub">Rep cada dimarts una guia de viatge responsable: conflictes, consells i allotjaments locals.</p>
+      <div class="nl-form">
+        <input type="email" id="nl-h-email" data-i18n-placeholder="nl.placeholder" placeholder="El teu email" />
+        <button onclick="nlSub('nl-h-email','nl-h-ok')" data-i18n="nl.btn">Subscriu-me</button>
+      </div>
+      <div class="nl-ok" id="nl-h-ok" data-i18n="nl.ok">Subscrit! Gràcies 🌿</div>
+    </div>
+  </div>
+</div>
+
+<!-- BUSCADOR -->
+<div class="page" id="page-buscador">
+  <div class="container-sm">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:1.8rem;font-weight:400;margin-bottom:0.5rem" data-i18n="buscador.title">Buscador ètic</h2>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:2rem" data-i18n="buscador.sub">Analitza qualsevol destí: transport, conflictes actius, veredicte i com viatjar-hi bé.</p>
+    <div class="steps">
+      <div class="sdot cur" id="d1">1</div><div class="sline" id="l1"></div>
+      <div class="sdot" id="d2">2</div><div class="sline" id="l2"></div>
+      <div class="sdot" id="d3">3</div>
+      <span style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem" id="slbl" data-i18n="step1.label">Origen i destí</span>
+    </div>
+    <div class="step-content on" id="sc1">
+      <div class="tool-wrap">
+        <div class="tool-head"><h3 data-i18n="step1.title">D'on a on vols viatjar?</h3><p data-i18n="step1.sub">Comparem opcions de transport per impacte ètic i CO₂</p></div>
+        <div class="tool-body">
+          <div class="input-row">
+            <div class="ac-wrap">
+              <input type="text" id="origen" data-i18n-placeholder="step1.from" placeholder="Origen — Ex: Barcelona" oninput="acInput('origen','ac-origen',this.value)" autocomplete="off" />
+              <div class="ac-list" id="ac-origen"></div>
+            </div>
+            <div class="ac-wrap">
+              <input type="text" id="destino" data-i18n-placeholder="step1.to" placeholder="Destí — Ex: Palestina, Japó..." oninput="acInput('destino','ac-destino',this.value)" autocomplete="off" />
+              <div class="ac-list" id="ac-destino"></div>
+            </div>
+          </div>
+          <button class="btn" id="btn1" onclick="step1()" data-i18n="step1.btn">Analitza el transport →</button>
+          <div id="r1"></div>
+        </div>
+      </div>
+    </div>
+    <div class="step-content" id="sc2">
+      <button class="btn-ghost" onclick="goStep(1)" data-i18n="back.dest">← Canviar destí</button>
+      <div id="r2"></div>
+    </div>
+    <div class="step-content" id="sc3">
+      <button class="btn-ghost" onclick="goStep(2)" data-i18n="back.verdict">← Tornar al veredicte</button>
+      <div id="r3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DESTINACIONS -->
+<div class="page" id="page-destinacions">
+  <div class="container">
+    <div class="section-title"><h2 data-i18n="dest.title">Destinacions ètiques</h2><button class="ai-btn" onclick="genDest('dest-grid')">✦ <span data-i18n="ai.gen">Genera amb IA</span></button></div>
+    <div class="filters">
+      <div class="filter on" data-i18n="filter.all">Totes</div>
+      <div class="filter" data-i18n="filter.europe">Europa</div>
+      <div class="filter" data-i18n="filter.africa">Àfrica</div>
+      <div class="filter" data-i18n="filter.asia">Àsia</div>
+      <div class="filter" data-i18n="filter.america">Amèrica</div>
+    </div>
+    <div class="grid" id="dest-grid">
+      <div class="loading" style="grid-column:1/-1">Carregant destinacions<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ALLOTJAMENT -->
+<div class="page" id="page-allotjament">
+  <div class="container">
+    <div class="section-title"><h2 data-i18n="alot.title">Allotjament responsable</h2><button class="ai-btn" onclick="genSection('alot-grid','allotjament')">✦ <span data-i18n="ai.gen">Genera amb IA</span></button></div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem" data-i18n="alot.sub">Alternatives a Airbnb i grans cadenes que beneficien les comunitats locals.</p>
+    <div class="grid" id="alot-grid">
+      <div class="loading" style="grid-column:1/-1">Carregant<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MENJAR -->
+<div class="page" id="page-menjar">
+  <div class="container">
+    <div class="section-title"><h2 data-i18n="menjar.title">Menjar sostenible</h2><button class="ai-btn" onclick="genSection('menjar-grid','menjar')">✦ <span data-i18n="ai.gen">Genera amb IA</span></button></div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem" data-i18n="menjar.sub">Com trobar on mengen els locals i evitar les trampes turístiques.</p>
+    <div class="grid" id="menjar-grid">
+      <div class="loading" style="grid-column:1/-1">Carregant<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVITATS -->
+<div class="page" id="page-activitats">
+  <div class="container">
+    <div class="section-title"><h2 data-i18n="act.title">Activitats i experiències</h2><button class="ai-btn" onclick="genSection('act-grid','activitats')">✦ <span data-i18n="ai.gen">Genera amb IA</span></button></div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem" data-i18n="act.sub">Tours amb guies locals autòctons i experiències que no explotin la comunitat.</p>
+    <div class="grid" id="act-grid">
+      <div class="loading" style="grid-column:1/-1">Carregant<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE PAGE -->
+<div class="page" id="page-article">
+  <div class="container-sm">
+    <button class="btn-ghost" onclick="showPage('guies')" style="margin-bottom:1.5rem">← Tornar a guies</button>
+    <div id="article-content"></div>
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border)">
+      <div class="nl-box">
+        <h2>T'ha agradat aquest article?</h2>
+        <p>Cada setmana publiquem una destinació analitzada a la nostra newsletter. Subscriu-te i no te'n perdis cap.</p>
+        <a href="https://viatgetic.substack.com" target="_blank" style="display:inline-block;padding:0.85rem 2rem;background:white;color:#1A1A18;border-radius:10px;font-weight:500;font-size:0.95rem;text-decoration:none;margin-top:0.5rem">Subscriu-te a Substack →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIES -->
+<div class="page" id="page-guies">
+  <div class="container">
+    <div class="section-title"><h2 data-i18n="guies.title">Guies i articles</h2></div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem" id="guies-list">
+      <div class="article-card" style="cursor:pointer" onclick="openArticle('mobilitat','✈️','Com calcular la petjada de carboni del teu viatge (i compensar-la de veritat)','Mobilitat')">
+        <div class="article-icon">✈️</div>
+        <div>
+          <div class="article-tag">Mobilitat</div>
+          <div class="article-title">Com calcular la petjada de carboni del teu viatge (i compensar-la de veritat)</div>
+          <div class="article-sub">No totes les compensacions de CO₂ funcionen igual. Et expliquem quines organitzacions són realment efectives.</div>
+        </div>
+        <div style="margin-left:auto;font-size:1.2rem;color:var(--muted);align-self:center">→</div>
+      </div>
+      <div class="article-card" style="cursor:pointer" onclick="openArticle('airbnb','🏠','Per què Airbnb destrueix barris — i quines alternatives tens','Allotjament')">
+        <div class="article-icon">🏠</div>
+        <div>
+          <div class="article-tag">Allotjament</div>
+          <div class="article-title">Per què Airbnb destrueix barris — i quines alternatives tens</div>
+          <div class="article-sub">Un anàlisi honest de l'impacte d'Airbnb als barris locals i plataformes que beneficien les comunitats.</div>
+        </div>
+        <div style="margin-left:auto;font-size:1.2rem;color:var(--muted);align-self:center">→</div>
+      </div>
+      <div class="article-card" style="cursor:pointer" onclick="openArticle('menjarlocal','🍽️','Com trobar on mengen els locals (i no els turistes)','Menjar')">
+        <div class="article-icon">🍽️</div>
+        <div>
+          <div class="article-tag">Menjar</div>
+          <div class="article-title">Com trobar on mengen els locals (i no els turistes)</div>
+          <div class="article-sub">Consells pràctics per sortir de la trampa turística i menjar autènticament en qualsevol destí.</div>
+        </div>
+        <div style="margin-left:auto;font-size:1.2rem;color:var(--muted);align-self:center">→</div>
+      </div>
+      <div class="article-card" style="cursor:pointer" onclick="openArticle('fotos','📷','Fotografiar persones quan viatjes: quan sí i quan no','Cultura')">
+        <div class="article-icon">📷</div>
+        <div>
+          <div class="article-tag">Cultura</div>
+          <div class="article-title">Fotografiar persones quan viatjes: quan sí i quan no</div>
+          <div class="article-sub">El consentiment, la dignitat i com no convertir les persones locals en atrezzo de les teves fotos.</div>
+        </div>
+        <div style="margin-left:auto;font-size:1.2rem;color:var(--muted);align-self:center">→</div>
+      </div>
+      <div class="article-card" style="cursor:pointer" onclick="openArticle('palestina','🇵🇸','Viatjar a Palestina: guia completa i ètica','Destinacions')">
+        <div class="article-icon">🇵🇸</div>
+        <div>
+          <div class="article-tag">Destinacions</div>
+          <div class="article-title">Viatjar a Palestina: guia completa i ètica</div>
+          <div class="article-sub">Per què viatjar a Palestina és un acte de suport a l'economia local i com fer-ho de forma responsable.</div>
+        </div>
+        <div style="margin-left:auto;font-size:1.2rem;color:var(--muted);align-self:center">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="page" id="page-newsletter">
+  <div class="container-sm">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:2rem;font-weight:400;margin-bottom:0.5rem">La newsletter de viatges ètics</h2>
+    <p style="color:var(--muted);font-size:0.95rem;margin-bottom:2rem;line-height:1.7">Cada dimarts, una destinació analitzada amb honestedat: conflictes actius, allotjaments locals, com viatjar sense perjudicar i una mirada que no trobaràs als mitjans convencionals.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:2rem">
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:0.4rem">📍</div>
+        <div style="font-size:0.8rem;font-weight:500">1 destinació</div>
+        <div style="font-size:0.75rem;color:var(--muted)">analitzada a fons</div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:0.4rem">🕊️</div>
+        <div style="font-size:0.8rem;font-weight:500">Sense filtres</div>
+        <div style="font-size:0.75rem;color:var(--muted)">la veritat documentada</div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:0.4rem">📅</div>
+        <div style="font-size:0.8rem;font-weight:500">Cada dimarts</div>
+        <div style="font-size:0.75rem;color:var(--muted)">al teu correu</div>
+      </div>
+    </div>
+
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:2rem">
+      <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Exemple — Edició #1</div>
+          <div style="font-size:1rem;font-weight:500;margin-top:3px">🇵🇸 Palestina: viatjar és un acte polític</div>
+        </div>
+        <span style="font-size:0.7rem;background:var(--gl);color:var(--green);padding:3px 10px;border-radius:20px">Gratuït</span>
+      </div>
+      <div style="padding:1.25rem;font-size:0.85rem;color:var(--muted);line-height:1.8">
+        <p>Quan reserves un hotel a Jerusalem Est o compres artesania a Hebron, els teus diners van a una família palestina. <strong style="color:var(--text)">Això és turisme com a acte de resistència.</strong></p>
+        <p style="margin-top:0.75rem">En aquesta edició: on allotjar-te, com moure't sense finançar l'ocupació, quines experiències culturals val la pena viure i per què evitar els tours que passen per Israel sense reconèixer Palestina...</p>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.78rem;color:var(--muted)">Llegeix la newsletter completa a Substack →</div>
+      </div>
+    </div>
+
+    <div class="nl-box">
+      <h2>Subscriu-te gratis a Substack</h2>
+      <p>Cada dimarts directament al teu correu. Sense algoritmes, sense anuncis.</p>
+      <a href="https://viatgetic.substack.com" target="_blank" style="display:inline-block;padding:0.85rem 2.5rem;background:white;color:#1A1A18;border-radius:10px;font-weight:500;font-size:1rem;text-decoration:none;margin-top:0.5rem;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+        Subscriu-te a Substack →
+      </a>
+      <p style="font-size:0.75rem;opacity:0.5;margin-top:1rem">Gratuït · Pots cancel·lar quan vulguis · Sense spam</p>
+    </div>
+  </div>
+</div>
+
+<footer>Viatge Ètic · Fet a Barcelona amb consciència</footer>
+
+<script>
+// ===== I18N =====
+const LANGS = {
+  ca: {
+    'nav.buscador':'Buscador ètic','nav.destinacions':'Destinacions','nav.allotjament':'Allotjament',
+    'nav.menjar':'Menjar','nav.activitats':'Activitats','nav.guies':'Guies','nav.newsletter':'Newsletter',
+    'home.title':'Viatja bé.<br><em>Viatja amb consciència.</em>',
+    'home.subtitle':'El primer buscador de viatges que et diu la veritat: conflictes actius, impacte real i com viatjar sense perjudicar les comunitats locals.',
+    'home.featured':'Destinacions destacades','home.seeAll':'Veure totes →','home.guides':'Guies recents','home.allGuides':'Totes les guies →',
+    'search.placeholder':'Cap a on vols anar?','search.btn':'Analitza →',
+    'buscador.title':'Buscador ètic','buscador.sub':'Analitza qualsevol destí: transport, conflictes actius, veredicte i com viatjar-hi bé.',
+    'step1.label':'Origen i destí','step1.title':"D'on a on vols viatjar?",'step1.sub':'Comparem opcions de transport per impacte ètic i CO₂',
+    'step1.from':'Origen — Ex: Barcelona','step1.to':'Destí — Ex: Palestina, Japó...','step1.btn':'Analitza el transport →',
+    'back.dest':'← Canviar destí','back.verdict':'← Tornar al veredicte',
+    'dest.title':'Destinacions ètiques','alot.title':'Allotjament responsable','alot.sub':'Alternatives a Airbnb i grans cadenes que beneficien les comunitats locals.',
+    'menjar.title':'Menjar sostenible','menjar.sub':'Com trobar on mengen els locals i evitar les trampes turístiques.',
+    'act.title':'Activitats i experiències','act.sub':'Tours amb guies locals autòctons i experiències que no explotin la comunitat.',
+    'guies.title':'Guies i articles','filter.all':'Totes','filter.europe':'Europa','filter.africa':'Àfrica','filter.asia':'Àsia','filter.america':'Amèrica',
+    'ai.gen':'Genera amb IA','ai.article':'Genera article amb IA',
+    'nl.title':'Una destinació ètica cada setmana','nl.sub':'Rep cada dimarts una guia de viatge responsable: conflictes, consells i allotjaments locals.',
+    'nl.placeholder':'El teu email','nl.btn':'Subscriu-me','nl.ok':'Subscrit! Gràcies 🌿',
+    'nlpage.title':'La newsletter de viatges ètics','nlpage.sub':'Cada dimarts, una destinació analitzada amb informació honesta i contrastada.',
+    'nlpage.cta':'Subscriu-te gratis','nlpage.ctasub':'Una destinació ètica cada setmana. Pots cancel·lar quan vulguis.',
+    'tag.mobility':'Mobilitat','tag.accommodation':'Allotjament','tag.food':'Menjar','tag.culture':'Cultura',
+    'article1.title':'Com calcular la petjada de carboni del teu viatge (i compensar-la de veritat)',
+    'article1.sub':"No totes les compensacions de CO₂ funcionen igual. Et expliquem quines organitzacions són realment efectives.",
+    'article2.title':"Per què Airbnb destrueix barris — i quines alternatives tens",
+    'article2.sub':"Un anàlisi honest de l'impacte d'Airbnb als barris locals i plataformes alternatives.",
+    'article3.title':'Com trobar on mengen els locals (i no els turistes)',
+    'article3.sub':'Consells pràctics per sortir de la trampa turística i menjar autènticament en qualsevol destí.',
+    'article4.title':'Fotografiar persones quan viatjes: quan sí i quan no',
+    'article4.sub':'El consentiment, la dignitat i com no convertir les persones locals en atrezzo de les teves fotos.',
+  },
+  es: {
+    'nav.buscador':'Buscador ético','nav.destinacions':'Destinos','nav.allotjament':'Alojamiento',
+    'nav.menjar':'Comida','nav.activitats':'Actividades','nav.guies':'Guías','nav.newsletter':'Newsletter',
+    'home.title':'Viaja bien.<br><em>Viaja con conciencia.</em>',
+    'home.subtitle':'El primer buscador de viajes que te dice la verdad: conflictos activos, impacto real y cómo viajar sin perjudicar a las comunidades locales.',
+    'home.featured':'Destinos destacados','home.seeAll':'Ver todos →','home.guides':'Guías recientes','home.allGuides':'Todas las guías →',
+    'search.placeholder':'¿A dónde quieres ir?','search.btn':'Analiza →',
+    'buscador.title':'Buscador ético','buscador.sub':'Analiza cualquier destino: transporte, conflictos activos, veredicto y cómo viajar bien.',
+    'step1.label':'Origen y destino','step1.title':'¿De dónde a dónde?','step1.sub':'Comparamos opciones de transporte por impacto ético y CO₂',
+    'step1.from':'Origen — Ej: Barcelona','step1.to':'Destino — Ej: Palestina, Japón...','step1.btn':'Analiza el transporte →',
+    'back.dest':'← Cambiar destino','back.verdict':'← Volver al veredicto',
+    'dest.title':'Destinos éticos','alot.title':'Alojamiento responsable','alot.sub':'Alternativas a Airbnb y grandes cadenas que benefician a las comunidades locales.',
+    'menjar.title':'Comida sostenible','menjar.sub':'Cómo encontrar donde comen los locales y evitar las trampas turísticas.',
+    'act.title':'Actividades y experiencias','act.sub':'Tours con guías locales autóctonos y experiencias que no exploten a la comunidad.',
+    'guies.title':'Guías y artículos','filter.all':'Todos','filter.europe':'Europa','filter.africa':'África','filter.asia':'Asia','filter.america':'América',
+    'ai.gen':'Genera con IA','ai.article':'Genera artículo con IA',
+    'nl.title':'Un destino ético cada semana','nl.sub':'Recibe cada martes una guía de viaje responsable: conflictos, consejos y alojamientos locales.',
+    'nl.placeholder':'Tu email','nl.btn':'Suscríbeme','nl.ok':'Suscrito! Gracias 🌿',
+    'nlpage.title':'La newsletter de viajes éticos','nlpage.sub':'Cada martes, un destino analizado con información honesta y contrastada.',
+    'nlpage.cta':'Suscríbete gratis','nlpage.ctasub':'Un destino ético cada semana. Puedes cancelar cuando quieras.',
+    'tag.mobility':'Movilidad','tag.accommodation':'Alojamiento','tag.food':'Comida','tag.culture':'Cultura',
+    'article1.title':'Cómo calcular la huella de carbono de tu viaje (y compensarla de verdad)',
+    'article1.sub':'No todas las compensaciones de CO₂ funcionan igual. Te explicamos qué organizaciones son realmente efectivas.',
+    'article2.title':'Por qué Airbnb destruye barrios — y qué alternativas tienes',
+    'article2.sub':'Un análisis honesto del impacto de Airbnb en los barrios locales y plataformas alternativas.',
+    'article3.title':'Cómo encontrar donde comen los locales (y no los turistas)',
+    'article3.sub':'Consejos prácticos para salir de la trampa turística y comer auténticamente en cualquier destino.',
+    'article4.title':'Fotografiar personas cuando viajas: cuándo sí y cuándo no',
+    'article4.sub':'El consentimiento, la dignidad y cómo no convertir a las personas locales en atrezo de tus fotos.',
+  },
+  en: {
+    'nav.buscador':'Ethical search','nav.destinacions':'Destinations','nav.allotjament':'Accommodation',
+    'nav.menjar':'Food','nav.activitats':'Activities','nav.guies':'Guides','nav.newsletter':'Newsletter',
+    'home.title':'Travel well.<br><em>Travel with conscience.</em>',
+    'home.subtitle':'The first travel search engine that tells you the truth: active conflicts, real impact, and how to travel without harming local communities.',
+    'home.featured':'Featured destinations','home.seeAll':'See all →','home.guides':'Recent guides','home.allGuides':'All guides →',
+    'search.placeholder':'Where do you want to go?','search.btn':'Analyse →',
+    'buscador.title':'Ethical search','buscador.sub':'Analyse any destination: transport, active conflicts, verdict and how to travel responsibly.',
+    'step1.label':'Origin and destination','step1.title':'Where to and from?','step1.sub':'We compare transport options by ethical impact and CO₂',
+    'step1.from':'Origin — Ex: Barcelona','step1.to':'Destination — Ex: Palestine, Japan...','step1.btn':'Analyse transport →',
+    'back.dest':'← Change destination','back.verdict':'← Back to verdict',
+    'dest.title':'Ethical destinations','alot.title':'Responsible accommodation','alot.sub':'Alternatives to Airbnb and big chains that benefit local communities.',
+    'menjar.title':'Sustainable food','menjar.sub':'How to find where locals eat and avoid tourist traps.',
+    'act.title':'Activities & experiences','act.sub':'Tours with local guides and experiences that do not exploit the community.',
+    'guies.title':'Guides & articles','filter.all':'All','filter.europe':'Europe','filter.africa':'Africa','filter.asia':'Asia','filter.america':'America',
+    'ai.gen':'Generate with AI','ai.article':'Generate article with AI',
+    'nl.title':'One ethical destination every week','nl.sub':'Receive every Tuesday a responsible travel guide: conflicts, tips and local accommodation.',
+    'nl.placeholder':'Your email','nl.btn':'Subscribe','nl.ok':'Subscribed! Thanks 🌿',
+    'nlpage.title':'The ethical travel newsletter','nlpage.sub':'Every Tuesday, one destination analysed with honest, verified information.',
+    'nlpage.cta':'Subscribe for free','nlpage.ctasub':'One ethical destination every week. Cancel anytime.',
+    'tag.mobility':'Mobility','tag.accommodation':'Accommodation','tag.food':'Food','tag.culture':'Culture',
+    'article1.title':'How to calculate your travel carbon footprint (and actually offset it)',
+    'article1.sub':'Not all CO₂ offsets work the same. We explain which organisations are truly effective.',
+    'article2.title':'Why Airbnb destroys neighbourhoods — and what alternatives you have',
+    'article2.sub':"An honest analysis of Airbnb's impact on local neighbourhoods and alternative platforms.",
+    'article3.title':'How to find where locals eat (not tourists)',
+    'article3.sub':'Practical tips to escape the tourist trap and eat authentically in any destination.',
+    'article4.title':'Photographing people when travelling: when yes and when no',
+    'article4.sub':'Consent, dignity and how not to turn local people into props for your photos.',
+  }
+};
+
+let currentLang = 'ca';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('on', b.textContent.toLowerCase() === lang));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (LANGS[lang][key]) el.innerHTML = LANGS[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (LANGS[lang][key]) el.placeholder = LANGS[lang][key];
+  });
+}
+
+// ===== CITIES AUTOCOMPLETE =====
+const CITIES = [
+  {n:'Barcelona',f:'🇪🇸'},{n:'Madrid',f:'🇪🇸'},{n:'València',f:'🇪🇸'},{n:'Sevilla',f:'🇪🇸'},
+  {n:'Palestina',f:'🇵🇸'},{n:'Jerusalem Est',f:'🇵🇸'},{n:'Cisjordània',f:'🇵🇸'},
+  {n:'Kurdistan',f:'🏴'},{n:'Sàhara Occidental',f:'🏴'},{n:'Cabília',f:'🏴'},
+  {n:'París',f:'🇫🇷'},{n:'Londres',f:'🇬🇧'},{n:'Roma',f:'🇮🇹'},{n:'Berlín',f:'🇩🇪'},
+  {n:'Lisboa',f:'🇵🇹'},{n:'Porto',f:'🇵🇹'},{n:'Amsterdam',f:'🇳🇱'},
+  {n:'Tiflis',f:'🇬🇪'},{n:'Tbilisi',f:'🇬🇪'},{n:'Marràqueix',f:'🇲🇦'},{n:'Fes',f:'🇲🇦'},
+  {n:'Mèxic DF',f:'🇲🇽'},{n:'Oaxaca',f:'🇲🇽'},{n:'Buenos Aires',f:'🇦🇷'},
+  {n:'Bogotà',f:'🇨🇴'},{n:'Lima',f:'🇵🇪'},{n:'Cusco',f:'🇵🇪'},
+  {n:'Katmandú',f:'🇳🇵'},{n:'Tòquio',f:'🇯🇵'},{n:'Kyoto',f:'🇯🇵'},
+  {n:'Bangkok',f:'🇹🇭'},{n:'Hanoi',f:'🇻🇳'},{n:'Nairobi',f:'🇰🇪'},
+  {n:'Accra',f:'🇬🇭'},{n:'Dakar',f:'🇸🇳'},{n:'Mogadiscio',f:'🇸🇴'},
+  {n:'Israel',f:'🇮🇱'},{n:'Egipte',f:'🇪🇬'},{n:'Turquia',f:'🇹🇷'},{n:'Iran',f:'🇮🇷'},
+  {n:'Rússia',f:'🇷🇺'},{n:'Ucraïna',f:'🇺🇦'},{n:'Cuba',f:'🇨🇺'},
+  {n:'Islàndia',f:'🇮🇸'},{n:'Noruega',f:'🇳🇴'},{n:'Finlàndia',f:'🇫🇮'},
+];
+
+function acInput(inputId, listId, val) {
+  const list = document.getElementById(listId);
+  if (!val || val.length < 2) { list.style.display='none'; return; }
+  const matches = CITIES.filter(c => c.n.toLowerCase().includes(val.toLowerCase())).slice(0,6);
+  if (!matches.length) { list.style.display='none'; return; }
+  list.innerHTML = matches.map(c=>`<div class="ac-item" onclick="selectCity('${inputId}','${listId}','${c.n}')">${c.f} ${c.n}</div>`).join('');
+  list.style.display='block';
+}
+
+function acHero(val) {
+  const list = document.getElementById('ac-hero');
+  if (!val || val.length < 2) { list.style.display='none'; return; }
+  const matches = CITIES.filter(c => c.n.toLowerCase().includes(val.toLowerCase())).slice(0,6);
+  if (!matches.length) { list.style.display='none'; return; }
+  list.innerHTML = matches.map(c=>`<div class="autocomplete-item" onclick="selectHero('${c.n}')">${c.f} ${c.n}</div>`).join('');
+  list.style.display='block';
+}
+
+function selectCity(inputId, listId, name) {
+  document.getElementById(inputId).value = name;
+  document.getElementById(listId).style.display='none';
+}
+
+function selectHero(name) {
+  document.getElementById('hero-input').value = name;
+  document.getElementById('ac-hero').style.display='none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap') && !e.target.closest('.search-wrap')) {
+    document.querySelectorAll('.ac-list,.autocomplete-list').forEach(l=>l.style.display='none');
+  }
+});
+
+// ===== NAVIGATION =====
+const G = { origen:'', destino:'', transport:'' };
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  const lk=[...document.querySelectorAll('.nav-link')].find(l=>l.getAttribute('onclick')?.includes("'"+id+"'"));
+  if(lk) lk.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='destinacions') loadSection('dest-grid','destinacions');
+  if(id==='allotjament') loadSection('alot-grid','allotjament');
+  if(id==='menjar') loadSection('menjar-grid','menjar');
+  if(id==='activitats') loadSection('act-grid','activitats');
+}
+
+function heroSearch() {
+  const q=document.getElementById('hero-input').value.trim();
+  if(!q) return;
+  document.getElementById('destino').value=q;
+  document.getElementById('ac-hero').style.display='none';
+  showPage('buscador');
+}
+
+function nlSub(inputId,okId) {
+  const v=document.getElementById(inputId).value.trim();
+  if(!v||!v.includes('@')){alert('Escriu un email vàlid');return;}
+  document.getElementById(okId).style.display='block';
+  document.getElementById(inputId).value='';
+}
+
+document.querySelectorAll('.filter').forEach(f=>{
+  f.addEventListener('click',function(){
+    this.closest('.filters').querySelectorAll('.filter').forEach(x=>x.classList.remove('on'));
+    this.classList.add('on');
+  });
+});
+
+// ===== AI =====
+async function callAI(prompt) {
+  const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+  if(!res.ok) throw new Error('Error del servidor: '+res.status);
+  const data=await res.json();
+  if(data.error) throw new Error(data.error);
+  const m=data.text.match(/\{[\s\S]*\}/);
+  if(!m) throw new Error('Resposta invàlida');
+  return JSON.parse(m[0]);
+}
+
+function showErr(el,msg){el.innerHTML=`<div class="err">Error: ${msg}. Torna-ho a intentar.</div>`;}
+
+// ===== BUSCADOR STEPS =====
+function goStep(n){
+  [1,2,3].forEach(i=>{
+    document.getElementById('sc'+i).classList.toggle('on',i===n);
+    const d=document.getElementById('d'+i);
+    d.className='sdot'+(i<n?' done':i===n?' cur':'');
+    if(i<3) document.getElementById('l'+i).classList.toggle('done',i<n);
+  });
+  const labels={ca:['Origen i destí','Anàlisi del destí','Com viatjar èticament'],es:['Origen y destino','Análisis del destino','Cómo viajar éticamente'],en:['Origin & destination','Destination analysis','How to travel ethically']};
+  document.getElementById('slbl').textContent=labels[currentLang][n-1];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function step1(){
+  const origen=document.getElementById('origen').value.trim();
+  const destino=document.getElementById('destino').value.trim();
+  if(!origen||!destino){alert('Escriu origen i destí!');return;}
+  G.origen=origen;G.destino=destino;
+  const btn=document.getElementById('btn1'),r=document.getElementById('r1');
+  btn.disabled=true;
+  r.innerHTML=`<div class="loading" style="padding:1.5rem 0">Analitzant transport<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+  try{
+    const d=await callAI(`Mobilitat sostenible. Origen:"${origen}"→Destí:"${destino}". Opcions transport de més a menys ètiques. JSON:{"opcions":[{"nom":"Tren","badge":"Més ètic","nivell":"green","co2":"12kg","temps":"18h","desc":"raó","millor":true}],"nota":"impacte global"} 3-4 opcions reals.`);
+    const bc=l=>l==='green'?'bg':l==='amber'?'ba':'br';
+    const best=d.opcions.find(o=>o.millor)||d.opcions[0];
+    r.innerHTML=`<span class="slabel" style="margin-top:1.25rem">Transport — de més a menys ètic</span>
+    ${d.opcions.map(o=>`<div class="t-item ${o.millor?'t-best':''}"><div class="t-head"><span class="t-name">${o.nom}</span><span class="badge ${bc(o.nivell)}">${o.badge}</span></div><div class="t-meta"><span>${o.co2}</span><span>${o.temps}</span></div><div class="t-desc">${o.desc}</div></div>`).join('')}
+    <div class="infobox">${d.nota}</div>
+    <button class="btn" onclick="step2('${best.nom.replace(/'/g,"\\'")}')">Continua: analitza el destí →</button>`;
+  }catch(e){showErr(r,e.message);}
+  btn.disabled=false;
+}
+
+async function step2(transport){
+  G.transport=transport;goStep(2);
+  const r=document.getElementById('r2');
+  r.innerHTML=`<div class="loading">Analitzant ${G.destino}<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+  try{
+    const d=await callAI(`Geopolítica drets humans. Destí:"${G.destino}". Ètic viatjar-hi ara? JSON:{"conflictes":[{"titol":"nom","nivell":"alt","desc":"explicació"}],"pobles":["poble"],"veredicte":"si/amb_matisos/no","vtitol":"frase","vexpl":"2-3 frases"}`);
+    const cc=n=>n==='alt'?'ch':n==='mitjà'?'cm':'cl';
+    const ct=n=>n==='alt'?'cth':n==='mitjà'?'ctm':'ctl';
+    const cd=n=>n==='alt'?'cdh':n==='mitjà'?'cdm':'cdl';
+    const vb=v=>v==='si'?'vsi':v==='amb_matisos'?'vam':'vno';
+    const vt=v=>v==='si'?'vtsi':v==='amb_matisos'?'vtam':'vtno';
+    const vx=v=>v==='si'?'vtxsi':v==='amb_matisos'?'vtxam':'vtxno';
+    r.innerHTML=`<span class="slabel">Conflictes i situació actual</span>
+    ${d.conflictes&&d.conflictes.length?d.conflictes.map(c=>`<div class="conflict ${cc(c.nivell)}"><div class="ct ${ct(c.nivell)}">${c.titol}</div><div class="cd ${cd(c.nivell)}">${c.desc}</div></div>`).join(''):'<div class="infobox">No s\'han detectat conflictes greus actuals.</div>'}
+    ${d.pobles&&d.pobles[0]?`<span class="slabel">Pobles vulnerables</span><div class="infobox">${d.pobles.join(' · ')}</div>`:''}
+    <span class="slabel">Veredicte ètic</span>
+    <div class="verdict ${vb(d.veredicte)}"><div class="vtitle ${vt(d.veredicte)}">${d.vtitol}</div><div class="vtext ${vx(d.veredicte)}">${d.vexpl}</div></div>
+    ${d.veredicte!=='no'?`<button class="btn" onclick="step3()">Com fer-ho de forma ètica? →</button>`:`<button class="btn" onclick="goStep(1)">Busca un altre destí →</button>`}`;
+  }catch(e){showErr(r,e.message);}
+}
+
+async function step3(){
+  goStep(3);
+  const r=document.getElementById('r3');
+  r.innerHTML=`<div class="loading">Preparant guia per a ${G.destino}<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+  try{
+    const d=await callAI(`Turisme responsable. Destí:"${G.destino}". Guia pràctica. JSON:{"cultura":[{"ok":true,"text":"norma"},{"ok":false,"text":"evitar"}],"allotjaments":[{"nom":"Casa rural","badge":"Molt ètic","nivell":"green","rao":"per què"},{"nom":"Airbnb","badge":"Evitar","nivell":"red","rao":"raó"}],"consells":["c1","c2","c3"]}`);
+    r.innerHTML=`<div class="tab-row">
+      <div class="tab on" data-p="tc">Cultura local</div>
+      <div class="tab" data-p="ta">Allotjament</div>
+      <div class="tab" data-p="tk">Consells</div>
+    </div>
+    <div id="tc" class="panel on"><span class="slabel">Normes culturals</span>${d.cultura.map(c=>`<div class="rule"><div class="rdot" style="background:${c.ok?'#2D6A4F':'#991B1B'}"></div>${c.text}</div>`).join('')}</div>
+    <div id="ta" class="panel"><span class="slabel">Allotjament</span>${d.allotjaments.map(a=>`<div class="t-item"><div class="t-head"><span class="t-name">${a.nom}</span><span class="badge ${a.nivell==='green'?'bg':a.nivell==='amber'?'ba':'br'}">${a.badge}</span></div><div class="t-desc">${a.rao}</div></div>`).join('')}</div>
+    <div id="tk" class="panel"><span class="slabel">Consells pràctics</span>${d.consells.map(c=>`<div class="infobox">${c}</div>`).join('')}</div>
+    <button class="btn" style="margin-top:1rem" onclick="goStep(1)">Analitza un altre destí →</button>`;
+    r.querySelectorAll('.tab').forEach(t=>{
+      t.addEventListener('click',function(){
+        r.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+        r.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+        this.classList.add('on');
+        document.getElementById(this.dataset.p).classList.add('on');
+      });
+    });
+  }catch(e){showErr(r,e.message);}
+}
+
+// ===== CACHE 24h =====
+const CACHE_TTL=24*60*60*1000;
+function cacheGet(k){try{const r=localStorage.getItem("ve_"+k);if(!r)return null;const{ts,data}=JSON.parse(r);if(Date.now()-ts>CACHE_TTL){localStorage.removeItem("ve_"+k);return null;}return data;}catch{return null;}}
+function cacheSet(k,d){try{localStorage.setItem("ve_"+k,JSON.stringify({ts:Date.now(),data:d}));}catch{}}
+function cacheClear(k){try{localStorage.removeItem("ve_"+k);}catch{}}
+// ===== AUTO-LOAD SECTIONS =====
+const sectionPrompts = {
+  destinacions: `Expert turisme responsable. 6 destinacions ètiques variades (Europa, Àsia, Àfrica, Amèrica, incloent territoris sense estat com Palestina, Kurdistan, Sàhara). JSON:{"items":[{"emoji":"🇵🇸","nom":"Palestina","sub":"Cisjordània i Jerusalem Est — economia local sota ocupació, cultura mil·lenària resistent","badge":"Suport actiu","score":90,"nivell":"green"}]} Varia continents, inclou destins poc coneguts i èticament rellevants.`,
+  allotjament: `Expert turisme responsable. 6 tipus allotjament ètic. JSON:{"items":[{"emoji":"🏡","nom":"Cases rurals familiars","sub":"Propietats locals, menjar casolà, autenticitat total","badge":"Molt recomanat","nivell":"green"},{"emoji":"⚠️","nom":"Airbnb","sub":"Accelera la gentrificació i expulsa residents locals","badge":"Evitar","nivell":"red"}]} Inclou opcions positives i negatives amb explicació.`,
+  menjar: `Expert turisme sostenible. 6 consells menjar ètic per viatgers. JSON:{"items":[{"emoji":"🥘","nom":"Mercats municipals","sub":"On compra la gent del barri. Producte fresc, preus locals, cultura autèntica","badge":"Molt recomanat","nivell":"green"}]} Mix de recomanacions positives i coses a evitar.`,
+  activitats: `Expert turisme responsable. 6 activitats turisme ètic. JSON:{"items":[{"emoji":"🗺️","nom":"Tours amb guies locals","sub":"Guies autòctons que expliquen la seva pròpia historia, no la versió per a turistes","badge":"Molt recomanat","nivell":"green"},{"emoji":"🐘","nom":"Atraccions amb animals","sub":"Elefants, tigres en captivitat — amaga maltractament animal greu","badge":"Evitar sempre","nivell":"red"}]} Mix positiu i negatiu.`,
+};
+
+async function loadSection(gridId, section) {
+  const grid = document.getElementById(gridId);
+  if (grid.dataset.loaded) return;
+  grid.innerHTML=`<div class="loading" style="grid-column:1/-1">Carregant<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+  try {
+    const d = await callAI(sectionPrompts[section]);
+    grid.dataset.loaded = '1';
+    grid.innerHTML = d.items.map(x=>cardHTML(x)).join('');
+  } catch(e) {
+    grid.innerHTML=`<div style="grid-column:1/-1"><div class="err">Error carregant. <button class="ai-btn" onclick="delete document.getElementById('${gridId}').dataset.loaded;loadSection('${gridId}','${section}')">Reintenta</button></div></div>`;
+  }
+}
+
+async function genSection(gridId, section) {
+  const grid = document.getElementById(gridId);
+  delete grid.dataset.loaded;
+  await loadSection(gridId, section);
+}
+
+let cardIndex = 0;
+function cardHTML(x) {
+  const bc = x.nivell==='green'?'bg':x.nivell==='amber'?'ba':'br';
+  const scoreColor = x.nivell==='green'?'#2D6A4F':x.nivell==='amber'?'#92400E':'#991B1B';
+  const delay = (cardIndex++ % 6) * 0.08;
+  return `<div class="card" style="animation-delay:${delay}s">
+    <div class="card-img">${x.emoji}</div>
+    <div class="card-content">
+      <div class="card-title">${x.nom}</div>
+      <div class="card-sub">${x.sub}</div>
+      <div class="card-footer">
+        <span class="badge ${bc}">${x.badge}</span>
+        ${x.score?`<div class="score"><div class="score-bar"><div class="score-fill" style="width:${x.score}%;background:${scoreColor}"></div></div><span class="score-num" style="color:${scoreColor}">${x.score}</span></div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function genDest(gridId) {
+  const grid = document.getElementById(gridId);
+  delete grid.dataset.loaded;
+  await loadSection(gridId, 'destinacions');
+}
+
+async function genGuia() {
+  const el=document.getElementById('guia-result');
+  el.innerHTML=`<div class="loading">Generant article<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+  try{
+    const d=await callAI(`Article breu turisme ètic. JSON:{"emoji":"🌍","tag":"Categoria","titol":"Títol","intro":"2-3 frases","punts":["punt 1","punt 2","punt 3","punt 4"]} Original, útil, honest.`);
+    el.innerHTML=`<div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem">
+      <div class="article-tag">${d.tag}</div>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;margin:0.4rem 0 0.75rem">${d.emoji} ${d.titol}</h3>
+      <p style="font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:1rem">${d.intro}</p>
+      <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:0.5rem">
+        ${d.punts.map(p=>`<li style="display:flex;gap:0.6rem;font-size:0.85rem;line-height:1.5"><span style="color:var(--green);flex-shrink:0">→</span>${p}</li>`).join('')}
+      </ul>
+      <button class="ai-btn" style="margin-top:1rem" onclick="genGuia()">✦ Genera'n un altre</button>
+    </div>`;
+    document.getElementById('guies-list').insertAdjacentHTML('beforeend',`<div class="article-card"><div class="article-icon">${d.emoji}</div><div><div class="article-tag">${d.tag}</div><div class="article-title">${d.titol}</div><div class="article-sub">${d.intro}</div></div></div>`);
+  }catch(e){showErr(el,e.message);}
+}
+
+// ===== AUTO-LOAD HOME DESTINATIONS =====
+async function loadHomeDest() {
+  const grid = document.getElementById('home-dest-grid');
+  try {
+    const d = await callAI(`Expert turisme responsable. 3 destinacions ètiques destacades per a la portada. JSON:{"items":[{"emoji":"🇵🇸","nom":"Palestina","sub":"descripció atractiva i honesta","badge":"Suport actiu","score":90,"nivell":"green"}]} Varia continents. Destins interessants i èticament rellevants.`);
+    grid.innerHTML = d.items.map(x=>cardHTML(x)).join('');
+    document.getElementById('dest-refresh-badge').textContent = 'Actualitzat ara';
+  } catch(e) {
+    grid.innerHTML=`<div style="grid-column:1/-1;color:var(--muted);font-size:0.85rem;padding:1rem">No s'han pogut carregar les destinacions. <button class="ai-btn" onclick="loadHomeDest()">Reintenta</button></div>`;
+  }
+}
+
+// ===== ARTICLES =====
+const articleCache = {};
+
+async function openArticle(slug, emoji, titol, tag) {
+  showPage('article');
+  const el = document.getElementById('article-content');
+
+  if (articleCache[slug]) {
+    renderArticle(el, articleCache[slug], emoji, titol, tag);
+    return;
+  }
+
+  el.innerHTML = `<div class="loading" style="padding:3rem 0">Carregant article<span class="da">.</span><span class="da">.</span><span class="da">.</span></div>`;
+
+  try {
+    const d = await callAI(`Ets el redactor de "Viatge Ètic", una web de turisme responsable amb valors clars: suport a Palestina i pobles oprimits, contra la gentrificació, contra Airbnb, a favor de l'economia local. Escriu un article complet sobre: "${titol}". JSON:{"titol":"${titol}","tag":"${tag}","intro":"Paràgraf d'introducció enganxifós i honest (3-4 frases)","seccions":[{"subtitol":"Subtítol secció","text":"Paràgraf complet de contingut (4-6 frases)"},{"subtitol":"Subtítol 2","text":"Paràgraf 2"},{"subtitol":"Subtítol 3","text":"Paràgraf 3"}],"conclusio":"Paràgraf de conclusió amb crida a l'acció ètica","llegeix_mes":"Una frase que convidi a llegir la newsletter per aprofundir"} L'estil ha de ser directe, honest, documentat i amb veu pròpia. Sense neutralitat falsa.`);
+    articleCache[slug] = d;
+    renderArticle(el, d, emoji, titol, tag);
+  } catch(e) {
+    el.innerHTML = `<div class="err">Error carregant l'article. <button class="btn-ghost" onclick="openArticle('${slug}','${emoji}','${titol.replace(/'/g,"\'")}','${tag}')">Reintenta</button></div>`;
+  }
+}
+
+function renderArticle(el, d, emoji, titol, tag) {
+  el.innerHTML = `
+    <div style="margin-bottom:0.5rem">
+      <span style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--green)">${d.tag||tag}</span>
+    </div>
+    <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:400;line-height:1.25;margin-bottom:1.25rem">${emoji} ${d.titol||titol}</h1>
+    <p style="font-size:1.05rem;color:var(--muted);line-height:1.8;margin-bottom:2rem;border-left:3px solid var(--green);padding-left:1rem">${d.intro}</p>
+    ${d.seccions.map(s=>`
+      <h2 style="font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;margin:2rem 0 0.75rem">${s.subtitol}</h2>
+      <p style="font-size:0.95rem;line-height:1.8;color:var(--text);margin-bottom:1rem">${s.text}</p>
+    `).join('')}
+    <div style="background:var(--bg);border-radius:12px;padding:1.25rem;margin-top:2rem">
+      <p style="font-size:0.95rem;line-height:1.7;font-style:italic;color:var(--text)">${d.conclusio}</p>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:var(--gl);border-radius:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+      <p style="font-size:0.85rem;color:#1B4332;line-height:1.5">${d.llegeix_mes}</p>
+      <a href="https://viatgetic.substack.com" target="_blank" style="padding:0.5rem 1.1rem;background:var(--green);color:white;border-radius:8px;font-size:0.82rem;font-weight:500;text-decoration:none;white-space:nowrap">Newsletter →</a>
+    </div>`;
+}
+
+// ===== COUNTER ANIMATION =====
+function animateCounter(id, target, duration=1500) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) { el.textContent = target + '+'; clearInterval(timer); return; }
+    el.textContent = Math.floor(start) + '+';
+  }, 16);
+}
+
+// Inicia
+loadHomeDest();
+setTimeout(() => {
+  animateCounter('counter-dest', 120);
+  animateCounter('counter-pobles', 18);
+  animateCounter('counter-guies', 45);
+}, 300);
+</script>
+</body>
+</html>
